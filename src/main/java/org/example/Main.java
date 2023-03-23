@@ -21,28 +21,19 @@ public class Main {
         String inputTopic = "inputTopic";
         System.out.println("Hello world!");
         Properties streamsConfiguration = new Properties();
-        streamsConfiguration.put(
-                StreamsConfig.APPLICATION_ID_CONFIG,
-                "wordcount-live-test");
+        streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, "wordcount-live-test");
          String bootstrapServers = "localhost:9092";
-        streamsConfiguration.put(
-                StreamsConfig.BOOTSTRAP_SERVERS_CONFIG,
-                bootstrapServers);
-        streamsConfiguration.put(
-                StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG,
-                Serdes.String().getClass().getName());
-        streamsConfiguration.put(
-                StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG,
-                Serdes.String().getClass().getName());
+        streamsConfiguration.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        streamsConfiguration.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+        streamsConfiguration.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         Path stateDirectory = Files.createTempDirectory("kafka-streams");
         streamsConfiguration.put(
                 StreamsConfig.STATE_DIR_CONFIG, stateDirectory.toAbsolutePath().toString());
         StreamsBuilder builder = new StreamsBuilder();
         KStream<String, String> textLines = builder.stream(inputTopic);
-        Pattern pattern = Pattern.compile("\\W+", Pattern.UNICODE_CHARACTER_CLASS);
 
-        KTable<String, Long> wordCounts = textLines
-                .flatMapValues(value -> Arrays.asList(pattern.split(value.toLowerCase())))
+        Pattern pattern = Pattern.compile("\\W+", Pattern.UNICODE_CHARACTER_CLASS);KStream<String,String> splited=textLines.flatMapValues(value -> Arrays.asList(pattern.split(value.toLowerCase())));
+        KTable<String, Long> wordCounts = splited
                 .groupBy((key, word) -> word)
                 .count();
         wordCounts.toStream()
